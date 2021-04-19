@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -11,18 +11,30 @@ import { tap } from 'rxjs/operators';
 export class AppComponent {
   title = 'FireDemo';
   items$: Observable<any[]>;
+  private _displayIsSelected$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  displayIsSelected$ = this._displayIsSelected$.asObservable();
 
   constructor(
     private _fireStore: AngularFirestore
   ) {
-    this.items$ = this._fireStore.collection<any>(
-      'productsList', // nomdelacollection
-      // ref => ref.where('xxxx', '==', 'yyyyy') // systeme de query
-    )
-    .valueChanges({idField: 'key'}) // récupération 
-    .pipe(
-      tap(data => console.log(data))
+    this.items$ = this.displayIsSelected$.pipe(
+      switchMap(displayIsSelected => {
+        return this._fireStore.collection<any[]>(
+          'productsList',
+          ref => {
+            return ref.where('isSelected', '==', displayIsSelected)
+          }
+        ).valueChanges();
+      })
     );
+    // this.items$ = this._fireStore.collection<any>(
+    //   'productsList', // nomdelacollection
+    //   ref => ref.where('isSelected', '==', this.displayIsSelected) // systeme de query
+    // )
+    // .valueChanges({idField: 'key'}) // récupération 
+    // .pipe(
+    //   tap(data => console.log(data))
+    // );
   }
   
   async add(inputElement: HTMLInputElement, quantityElement: HTMLInputElement) {
@@ -36,7 +48,8 @@ export class AppComponent {
     }
     await this._fireStore.collection<any>('productsList').add({
       name: inputElement?.value,
-      quantity: +quantityElement.value
+      quantity: +quantityElement.value,
+      isSelected: false
     });
     inputElement.value = '';
     quantityElement.value = '';
@@ -47,5 +60,10 @@ export class AppComponent {
     this._fireStore.collection('productsList').doc(item.key).update({
       isSelected: true
     });
+  }
+
+  toggleDisplayIsSelected() {
+    this._displayIsSelected$.next(!this._displayIsSelected$.value);
+    console.log(this._displayIsSelected$.value);
   }
 }
