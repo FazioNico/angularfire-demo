@@ -1,7 +1,8 @@
 <div>
   <h1>AngularFire FireStore Demo</h1>
+  <input #quantityElement type="number" />
   <input #inputElement type="text" placeholder="nom du produit">
-  <button (click)="add(inputElement)">ajouter</button>
+  <button (click)="add(inputElement, quantityElement)">ajouter</button>
   <ul>
     <li *ngFor="let item of items$|async">
       {{item|json}}

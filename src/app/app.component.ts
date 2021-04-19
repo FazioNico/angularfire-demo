@@ -25,15 +25,21 @@ export class AppComponent {
     );
   }
   
-  async add(inputElement: HTMLInputElement) {
+  async add(inputElement: HTMLInputElement, quantityElement: HTMLInputElement) {
     if (inputElement?.value?.length <= 0) {
       console.log('error: ', inputElement?.value);
       return;
     }
+    if (+quantityElement?.value <= 0) {
+      console.log('error: ', quantityElement?.value);
+      return;
+    }
     await this._fireStore.collection<any>('productsList').add({
-      name: inputElement?.value
+      name: inputElement?.value,
+      quantity: +quantityElement.value
     });
     inputElement.value = '';
+    quantityElement.value = '';
     console.log('data save inside firebase');
   }
 }
