@@ -4,7 +4,7 @@
   <input #inputElement type="text" placeholder="nom du produit">
   <button (click)="add(inputElement, quantityElement)">ajouter</button>
   <ul>
-    <li *ngFor="let item of items$|async">
+    <li *ngFor="let item of items$|async" (click)="selectItem(item)">
       {{item|json}}
     </li>
   </ul>

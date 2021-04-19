@@ -42,4 +42,10 @@ export class AppComponent {
     quantityElement.value = '';
     console.log('data save inside firebase');
   }
+
+  async selectItem(item) {
+    this._fireStore.collection('productsList').doc(item.key).update({
+      isSelected: true
+    });
+  }
 }
