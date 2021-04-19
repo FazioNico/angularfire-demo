@@ -16,7 +16,7 @@ export class AppComponent {
     private _fireStore: AngularFirestore
   ) {
     this.items$ = this._fireStore.collection<any>(
-      'pipo', // nomdelacollection
+      'productsList', // nomdelacollection
       // ref => ref.where('xxxx', '==', 'yyyyy') // systeme de query
     )
     .valueChanges({idField: 'key'}) // récupération 
@@ -24,15 +24,16 @@ export class AppComponent {
       tap(data => console.log(data))
     );
   }
-
-  check(item) {
-    console.log(item);
-  }
   
-  async add() {
-    await this._fireStore.collection<any>('pipo').add({
-      xxxx: 'hello'
+  async add(inputElement: HTMLInputElement) {
+    if (inputElement?.value?.length <= 0) {
+      console.log('error: ', inputElement?.value);
+      return;
+    }
+    await this._fireStore.collection<any>('productsList').add({
+      name: inputElement?.value
     });
+    inputElement.value = '';
     console.log('data save inside firebase');
   }
 }
