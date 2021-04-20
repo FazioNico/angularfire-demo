@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
+import { ProductsListStateService } from './products-list-state.service';
 import { ProductsListService } from './products-list.service';
 
 @Component({
@@ -12,12 +13,12 @@ import { ProductsListService } from './products-list.service';
 export class AppComponent {
   title = 'FireDemo';
   items$: Observable<any[]>;
-  displayIsSelected$ = this._productsListService.displayIsSelected$;
+  displayIsSelected$ = this._productsListStateService.displayIsSelected$;
 
   constructor(
-    private _productsListService: ProductsListService
+    private _productsListStateService: ProductsListStateService
   ) {
-    this.items$ = this._productsListService.getItem$();
+    this.items$ = this._productsListStateService.getItem$();
   }
   
   async add(inputElement: HTMLInputElement, quantityElement: HTMLInputElement) {
@@ -29,7 +30,7 @@ export class AppComponent {
       console.log('error: ', quantityElement?.value);
       return;
     }
-    await this._productsListService.addItem(
+    await this._productsListStateService.addItem(
       inputElement?.value,
       +quantityElement.value
     );
@@ -39,10 +40,10 @@ export class AppComponent {
   }
 
   async selectItem(item) {
-    await this._productsListService.selectItem(item);
+    await this._productsListStateService.selectItem(item);
   }
 
   toggleDisplayIsSelected() {
-    this._productsListService.toogleState();
+    this._productsListStateService.toogleState();
   }
 }
