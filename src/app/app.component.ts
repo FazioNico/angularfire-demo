@@ -24,7 +24,7 @@ export class AppComponent {
           ref => {
             return ref.where('isSelected', '==', displayIsSelected)
           }
-        ).valueChanges();
+        ).valueChanges({idField: 'key'});
       })
     );
     // this.items$ = this._fireStore.collection<any>(
