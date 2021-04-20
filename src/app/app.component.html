@@ -4,9 +4,9 @@
   <input #inputElement type="text" placeholder="nom du produit">
   <button (click)="add(inputElement, quantityElement)">ajouter</button>
   <br/>
-  <div *ngIf="(displayIsSelected$|async) as displayIsSelected">
-    <button [disabled]="displayIsSelected === false" (click)="toggleDisplayIsSelected()">à acheter</button>
-    <button [disabled]="displayIsSelected === true" (click)="toggleDisplayIsSelected()">acheté</button>
+  <div>
+    <button [disabled]="(displayIsSelected$|async) === false" (click)="toggleDisplayIsSelected()">à acheter</button>
+    <button [disabled]="(displayIsSelected$|async) === true" (click)="toggleDisplayIsSelected()">acheté</button>
   </div>
   <ul>
     <li *ngFor="let item of items$|async" (click)="selectItem(item)">
