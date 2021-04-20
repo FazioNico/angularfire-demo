@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
+import { ProductsListService } from './products-list.service';
 
 @Component({
   selector: 'app-root',
@@ -11,30 +12,12 @@ import { map, switchMap, tap } from 'rxjs/operators';
 export class AppComponent {
   title = 'FireDemo';
   items$: Observable<any[]>;
-  private _displayIsSelected$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  displayIsSelected$ = this._displayIsSelected$.asObservable();
+  displayIsSelected$ = this._productsListService.displayIsSelected$;
 
   constructor(
-    private _fireStore: AngularFirestore
+    private _productsListService: ProductsListService
   ) {
-    this.items$ = this.displayIsSelected$.pipe(
-      switchMap(displayIsSelected => {
-        return this._fireStore.collection<any[]>(
-          'productsList',
-          ref => {
-            return ref.where('isSelected', '==', displayIsSelected)
-          }
-        ).valueChanges({idField: 'key'});
-      })
-    );
-    // this.items$ = this._fireStore.collection<any>(
-    //   'productsList', // nomdelacollection
-    //   ref => ref.where('isSelected', '==', this.displayIsSelected) // systeme de query
-    // )
-    // .valueChanges({idField: 'key'}) // récupération 
-    // .pipe(
-    //   tap(data => console.log(data))
-    // );
+    this.items$ = this._productsListService.getItem$();
   }
   
   async add(inputElement: HTMLInputElement, quantityElement: HTMLInputElement) {
@@ -46,24 +29,20 @@ export class AppComponent {
       console.log('error: ', quantityElement?.value);
       return;
     }
-    await this._fireStore.collection<any>('productsList').add({
-      name: inputElement?.value,
-      quantity: +quantityElement.value,
-      isSelected: false
-    });
+    await this._productsListService.addItem(
+      inputElement?.value,
+      +quantityElement.value
+    );
     inputElement.value = '';
     quantityElement.value = '';
     console.log('data save inside firebase');
   }
 
   async selectItem(item) {
-    this._fireStore.collection('productsList').doc(item.key).update({
-      isSelected: true
-    });
+    await this._productsListService.selectItem(item);
   }
 
   toggleDisplayIsSelected() {
-    this._displayIsSelected$.next(!this._displayIsSelected$.value);
-    console.log(this._displayIsSelected$.value);
+    this._productsListService.toogleState();
   }
 }
